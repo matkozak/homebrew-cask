@@ -1,7 +1,11 @@
 name: CI
 
 on:
-  - pull_request
+  pull_request:
+  check_run:
+    types:
+      - created
+      - rerequested
 
 jobs:
   ci:
@@ -9,6 +13,12 @@ jobs:
     steps:
       - name: brew pull
         run: |
+          cat "$GITHUB_EVENT_PATH" | jq .
+
+          cat "$GITHUB_EVENT_PATH" | jq '.check_run.check_suite.pull_requests[0].url'
+
+          echo "${{ github.event.check_run.check_suite.pull_requests[0].url }}"
+
           brew update-reset "$(brew --repository)"
 
           HOMEBREW_INSTALL_BUNDLER_GEMS_FIRST=1 brew config
@@ -30,6 +40,7 @@ jobs:
       - name: brew cask ci
         run: |
           cd "$(brew --repository "${GITHUB_REPOSITORY}")"
+          export HOMEBREW_GITHUB_EVENT="${GITHUB_EVENT}"
           export HOMEBREW_GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}"
           export HOMEBREW_GITHUB_API_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           brew cask ci

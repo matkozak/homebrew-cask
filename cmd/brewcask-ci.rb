@@ -71,9 +71,19 @@ module Cask
               puts JSON.pretty_generate(event)
               puts "-" * 100
 
-              check_runs = GitHub.check_runs(pr: event.fetch("pull_request")).fetch("check_runs")
+              puts "EVENT: #{ENV["HOMEBREW_GITHUB_EVENT"]}"
 
-              puts JSON.pretty_generate(check_runs)
+              puts "-" * 100
+
+              case ENV["HOMEBREW_GITHUB_EVENT"]
+              when "pull_request"
+                check_runs = GitHub.check_runs(pr: event.fetch("pull_request")).fetch("check_runs")
+                puts JSON.pretty_generate(check_runs)
+              when "check_run"
+              else
+              end
+
+
 
               puts "-" * 100
 
